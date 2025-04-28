@@ -1,9 +1,10 @@
+import  otpGenerator  from 'otp-generator';
 import { envConfig } from "./../config/config";
 import jwt, { Secret } from "jsonwebtoken";
 import { Request, Response } from "express";
 import User from "../database/models/userModel";
 import bcrypt from "bcrypt";
-import otpGenerator from "otp-generator";
+
 import sendMail from "../services/sendMail";
 import checkOtpExpiration from "../services/optExpiration";
 
@@ -26,7 +27,7 @@ class UserController {
         return;
       }
 
-      await User.create({
+   const data=   await User.create({
         username,
         email,
         password: bcrypt.hashSync(password, 10),
@@ -34,11 +35,14 @@ class UserController {
 
       res.status(201).json({
         message: "User registered successfully",
+        data
+
       });
     } catch (error) {
       console.error(error);
       res.status(500).json({
         message: "Internal server error",
+        error: error,
       });
     }
   }
@@ -73,9 +77,14 @@ class UserController {
         expiresIn: "30d",
       });
 
-      res.status(200).json({
+      res.status(201).json({
         message: "User logged in successfully",
         token,
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+        },
       });
     } catch (error) {
       console.error(error);
@@ -120,7 +129,7 @@ class UserController {
       user.otpGeneratedTime = Date.now().toString();
       await user.save();
 
-      res.status(200).json({
+      res.status(201).json({
         message: "OTP sent to your email",
         otp,
       });
@@ -165,7 +174,7 @@ class UserController {
 
       user.password = bcrypt.hashSync(newPassword, 10);
       await user.save();
-      res.status(200).json({
+      res.status(201).json({
         message: "Password updated successfully",
       });
     } catch (error) {
