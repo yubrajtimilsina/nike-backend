@@ -3,27 +3,27 @@ import Product from "../database/models/productModel";
 import Category from "../database/models/categoryModel";
 
 
-class ShoeController{
+class ProductController{
     async createProduct(req:Request,res:Response):Promise<void>{
       
-            const {shoeName,description,price,stock,discount,categoryId} = req.body 
+            const {productName,productDescription,productPrice,productTotalStock,discount,categoryId} = req.body 
         const filename = req.file ? req.file.filename : "https://weimaracademy.org/wp-content/uploads/2021/08/dummy-user.png"
-        if(!shoeName || !description || !price || !stock  || !categoryId){
+        if(!productName || !productDescription || !productPrice || !productTotalStock  || !categoryId){
             res.status(400).json({
                 message : "Please provide productName,productDescription,productPrice,productTotalStock,discount,categoryId"
             })
             return
         }
         const product =  await Product.create({
-            shoeName,
-            description,
-            price,
-            stock,
+            productName,
+            productDescription,
+            productPrice,
+            productTotalStock,
             discount : discount || 0,
             categoryId:categoryId, 
-            imageUrl : filename
+            productImageUrl : filename
         })
-        res.status(200).json({
+        res.status(201).json({
             message : "Product created successfully", 
             data : product
         })
@@ -38,7 +38,7 @@ class ShoeController{
                 }
             ]
         })
-        res.status(200).json({
+        res.status(201).json({
             message : "Products fetched successfully", 
             data : datas
         })
@@ -56,7 +56,7 @@ class ShoeController{
                 }
             ]
         })
-        res.status(200).json({
+        res.status(201).json({
             message : "Products fetched successfully", 
             data : datas
         })
@@ -78,7 +78,7 @@ class ShoeController{
                     id : id
                 }
             })
-            res.status(200).json({
+            res.status(201).json({
                 message : "Products deleted successfully", 
                 data : datas
             })
@@ -86,4 +86,4 @@ class ShoeController{
     }
 }
 
-export default new ShoeController
+export default new ProductController

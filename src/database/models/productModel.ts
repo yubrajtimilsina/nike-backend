@@ -1,54 +1,54 @@
-import { Table, Column, Model, DataType } from "sequelize-typescript";
+import {Table,Column,Model,DataType} from 'sequelize-typescript'
+
 
 @Table({
-  tableName: "shoes",
-  modelName: "Shoe",
-  timestamps: true,
+    tableName : "products", 
+    modelName : "Product", 
+    timestamps : true
 })
-class Shoe extends Model {
-  @Column({
-    primaryKey: true,
-    type: DataType.UUID,
-    defaultValue: DataType.UUIDV4,
-  })
-  declare id: string;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  declare shoeName: string;
+class Product extends Model{
+    @Column({
+        primaryKey : true, 
+        type : DataType.UUID, 
+        defaultValue : DataType.UUIDV4
+    })
+    declare id:string
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  declare shoeBrand: string;
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  declare description: string;
-  @Column({
-    type: DataType.FLOAT,
-    allowNull: false,
-  })
-  declare price: Number;
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  declare imageUrl: string;
-  @Column({
-    type: DataType.NUMBER,
-    allowNull: false,
-  })
-  declare stock: Number;
-  @Column({
-    type: DataType.NUMBER,
-    allowNull: false,
-  })
-  declare discount: Number;
+    @Column({
+        type : DataType.STRING, 
+        allowNull : false
+    })
+    declare productName:string
+
+
+    @Column({
+        type : DataType.TEXT
+    })
+    declare productDescription:string
+
+    @Column({
+        type : DataType.FLOAT, 
+        allowNull : false
+    })
+    declare productPrice:number
+
+    @Column({
+        type : DataType.INTEGER,
+        allowNull : false
+    })
+    declare productTotalStock:number
+
+    @Column({
+        type : DataType.INTEGER, 
+        allowNull : false
+    })
+    declare discount:number
+
+    @Column({
+        type : DataType.STRING
+    })
+    declare productImageUrl : string
 }
 
-export default Shoe;
+export default Product

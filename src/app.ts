@@ -2,7 +2,7 @@ import express from "express";
 import "./database/connection";
 import userRoute from "./routes/userRoute";
 import categoryRoute from "./routes/categoryRoute";
-import shoeRoute from "./routes/shoeRoute";
+import productRoute from "./routes/productRoute";
 import cors from "cors";
 const app = express();
 app.use(express.json());
@@ -15,6 +15,8 @@ app.use(
 
 app.use("/api/auth", userRoute);
 app.use("/api/category", categoryRoute);
-app.use("/api/shoe", shoeRoute);
+app.use("/api/product", productRoute);
+
+app.use(express.static('./src/uploads'));
 
 export default app;

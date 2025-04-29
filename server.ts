@@ -1,6 +1,18 @@
+import adminSeeder from "./src/adminSeeder";
 import app from "./src/app";
 import { envConfig } from "./src/config/config";
+import categoryController from "./src/controllers/categoryController";
 
+
+
+function startServer() {
 app.listen(envConfig.port, () => {
+    categoryController.seedCategory()
+
     console.log(`Server is running on port ${envConfig.port}`);
+    adminSeeder()
+
+
 });
+}
+startServer();

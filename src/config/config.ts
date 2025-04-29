@@ -11,6 +11,7 @@ export const envConfig={
     password:process.env.PASSWORD,
     admin:process.env.ADMIN,
     passwordAdmin:process.env.PASSWORD_ADMIN,
+    admin_username:process.env.ADMIN_USERNAME,
 
     
 }

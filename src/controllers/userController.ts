@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 
 import sendMail from "../services/sendMail";
 import checkOtpExpiration from "../services/optExpiration";
+import { Role } from '../middleware/userMiddleware';
 
 class UserController {
   static async register(req: Request, res: Response): Promise<void> {
@@ -84,6 +85,7 @@ class UserController {
           id: user.id,
           username: user.username,
           email: user.email,
+          Role: user.role,
         },
       });
     } catch (error) {
