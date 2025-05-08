@@ -1,13 +1,13 @@
+import { isEmail } from './../../node_modules/@types/validator/index.d';
 import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import Product from "../database/models/productModel"; // assuming you want to join reviews with product info
 import ProductReview from "../database/models/productReview";
 import { envConfig } from "../config/config";
-import { Model } from "sequelize-typescript";
 import User from "../database/models/userModel";
 
 // interface JwtPayload {
-//   username: string;
+//   email: string;
 // }
 class ProductReviewController {
   // Create a new review
@@ -15,6 +15,7 @@ class ProductReviewController {
  async  createReview(req: Request, res: Response): Promise<void> {
   const { rating, comment,userId } = req.body;
   const { id: productId } = req.params;
+  // const token=req.headers.authorization
 
   // if (!token) {
   //   res.status(401).json({ message: "Unauthorized" });
@@ -29,7 +30,7 @@ class ProductReviewController {
   //   return;
   // }
 
-  // if (!decoded?.username) {
+  // if (!decoded?.email) {
   //   res.status(403).json({ message: "Invalid user" });
   //   return;
   // }
