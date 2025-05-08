@@ -12,6 +12,7 @@ class CategoryController{
         {
             categoryName : "Basketball"
         }
+
     ]
     async seedCategory():Promise<void>{
 

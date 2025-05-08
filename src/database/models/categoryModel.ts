@@ -20,5 +20,6 @@ class Category extends Model{
         allowNull : false // required : false 
     })
     declare categoryName : string 
+
 }
 export default Category

@@ -1,54 +1,110 @@
-import {Table,Column,Model,DataType} from 'sequelize-typescript'
-
+import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 @Table({
-    tableName : "products", 
-    modelName : "Product", 
-    timestamps : true
+  tableName: "shoes",
+  modelName: "Shoe",
+  timestamps: true,
+  paranoid: true // For soft deletion
 })
+class Shoe extends Model {
+  @Column({
+    primaryKey: true,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4
 
-class Product extends Model{
-    @Column({
-        primaryKey : true, 
-        type : DataType.UUID, 
-        defaultValue : DataType.UUIDV4
-    })
-    declare id:string
+  })
+  declare id: string;
 
-    @Column({
-        type : DataType.STRING, 
-        allowNull : false
-    })
-    declare productName:string
+  @Column({
+    type: DataType.STRING(100),
+    allowNull: false,
+    
+  })
+  declare name: string;
+
+  @Column({
+    type: DataType.STRING(50),
+    allowNull: false,
+   
+  })
+  declare brand: string;
+
+  @Column({
+    type: DataType.FLOAT, 
+    allowNull: false,
+   
+  })
+  declare price: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: 0,
+   
+  })
+  declare discount: number;
+
+  @Column({
+    type: DataType.FLOAT,
+    allowNull: false
+  })
+  declare originalPrice: number;
+
+  @Column({
+    type: DataType.TEXT,
+    allowNull: false
+   
+  })
+  declare description: string;
+
+  @Column({
+    type: DataType.ARRAY(DataType.STRING),
+    defaultValue: []
+  })
+  declare features: string[];
+
+  @Column({
+    type: DataType.ARRAY(DataType.STRING),
+    defaultValue: []
+  })
+  declare sizes: string[];
+
+  @Column({
+    type: DataType.ARRAY(DataType.STRING),
+    defaultValue: []
+  })
+  declare colors: string[];
+
+  @Column({
+    type: DataType.ARRAY(DataType.STRING),
+    defaultValue: []
+  })
+  declare images: string[];
+
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: true
+  })
+  declare inStock: boolean;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false
+  })
+  declare isNew: boolean;
 
 
-    @Column({
-        type : DataType.TEXT
-    })
-    declare productDescription:string
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+    defaultValue: 0
+  })
+  declare totalStock: Number;
 
-    @Column({
-        type : DataType.FLOAT, 
-        allowNull : false
-    })
-    declare productPrice:number
+  
 
-    @Column({
-        type : DataType.INTEGER,
-        allowNull : false
-    })
-    declare productTotalStock:number
-
-    @Column({
-        type : DataType.INTEGER, 
-        allowNull : false
-    })
-    declare discount:number
-
-    @Column({
-        type : DataType.STRING
-    })
-    declare productImageUrl : string
+  // Associations
+  // @HasMany(() => ProductReview)
+  // declare reviews: ProductReview[];
 }
 
-export default Product
+export default Shoe;

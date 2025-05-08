@@ -74,7 +74,7 @@ class UserController {
         return;
       }
 
-      const token = jwt.sign({ id: user.id }, envConfig.jwtSecret as Secret, {
+      const token = jwt.sign({ userId: user.id }, envConfig.jwtSecret as Secret, {
         expiresIn: "30d",
       });
 
