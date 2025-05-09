@@ -1,10 +1,9 @@
 import express, { Router } from "express";
 import productController from "../controllers/productController";
 import userMiddleware, { Role } from "../middleware/userMiddleware";
-import { multer, storage } from "../middleware/multer";
 import errorHandler from "../services/errorHandler";
+import { upload } from "../middleware/multer";
 
-const upload = multer({ storage: storage });
 const router: Router = express.Router();
 
 router
@@ -16,7 +15,7 @@ router
   .post(
     userMiddleware.isUserLoggedIn,
     userMiddleware.accessTo(Role.Admin),
-    upload.single("images"),
+    upload.array("images",10),
     errorHandler(productController.createProduct)
   )
   .get(productController.getAllProducts);

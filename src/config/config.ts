@@ -12,6 +12,7 @@ export const envConfig={
     admin:process.env.ADMIN,
     passwordAdmin:process.env.PASSWORD_ADMIN,
     admin_username:process.env.ADMIN_USERNAME,
+    cloudinary_url:process.env.CLOUDINARY_URL
 
     
 }

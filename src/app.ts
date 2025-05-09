@@ -5,9 +5,11 @@ import categoryRoute from "./routes/categoryRoute";
 import productRoute from "./routes/productRoute";
 import productReview from './routes/productReviewRoute'
 import collectionRoute from "./routes/collectionRoute";
+import cartRoute from './routes/cartRoute'
 import cors from "cors";
 const app = express();
 app.use(express.json());
+
 
 app.use(
   cors({
@@ -19,7 +21,8 @@ app.use("/api/auth", userRoute);
 app.use("/api/category", categoryRoute);
 app.use("/api/product", productRoute);
 app.use('/api/collection',collectionRoute)
-app.use("/api", productReview); // Assuming you have a route for reviews in productRoute
+app.use("/api", productReview); 
+app.use('/api',cartRoute)
 
 app.use(express.static('./src/uploads'));
 
