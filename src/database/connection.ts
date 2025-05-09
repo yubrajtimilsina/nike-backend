@@ -6,6 +6,10 @@ import Shoe from "./models/productModel";
 import User from "./models/userModel";
 import Collection from "./models/collectionModel";
 import { text } from "express";
+import Cart from "./models/cartModel";
+import Order from "./models/orderModel";
+import Payment from "./models/paymentModel";
+import OrderDetails from "./models/orderDetaills";
 
 const sequelize = new Sequelize(envConfig.databaseUrl as string, {
   models: [__dirname + "/models"],
@@ -26,7 +30,7 @@ try {
   process.exit(1);
 }
 
-sequelize.sync({ force:false, alter:false}).then(() => {
+sequelize.sync({ force: false, alter: true }).then(() => {
   console.log("Database synced successfully");
 });
 
@@ -39,7 +43,7 @@ Category.hasMany(Shoe, { foreignKey: "categoryId" });
 Shoe.belongsTo(Collection, { foreignKey: "collectionId" });
 Collection.hasMany(Shoe, { foreignKey: "collectionId" });
 
-// user x review 
+// user x review
 ProductReview.belongsTo(User, { foreignKey: "userId" });
 User.hasMany(ProductReview, { foreignKey: "userId" });
 
@@ -47,14 +51,28 @@ User.hasMany(ProductReview, { foreignKey: "userId" });
 ProductReview.belongsTo(Shoe, { foreignKey: "productId" });
 Shoe.hasMany(ProductReview, { foreignKey: "productId" });
 
+// product x cart
+Cart.belongsTo(Shoe, { foreignKey: "productId" });
+Shoe.hasMany(Cart, { foreignKey: "productId" });
 
+// user x cart
+Cart.belongsTo(User, { foreignKey: "userId" });
+User.hasOne(Cart, { foreignKey: "userId" });
 
+// order x user
+Order.belongsTo(User, { foreignKey: "userId" });
+User.hasMany(Order, { foreignKey: "userId" });
 
+// payment x order
+Order.belongsTo(Payment, { foreignKey: "paymentId" });
+Payment.hasOne(Order, { foreignKey: "paymentId" });
 
+// order x oderDetaills
+OrderDetails.belongsTo(Order, { foreignKey: "OrderId" });
+Order.hasOne(OrderDetails, { foreignKey: "orderId" });
 
-
-
-
-
+//  orderDetaills x Product
+OrderDetails.belongsTo(Shoe, { foreignKey: "productId" });
+Shoe.hasMany(OrderDetails, { foreignKey: "productId" });
 
 export default sequelize;
