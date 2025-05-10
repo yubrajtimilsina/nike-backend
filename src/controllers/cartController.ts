@@ -11,52 +11,34 @@ interface IAuth extends Request {
 
 class CartController {
   async addToCart(req: IAuth, res: Response) {
-    // userId, productId, quantity
     const userId = req.user?.id;
-    const { productId, quantity } = req.body;
+    const { productId, quantity, sizes } = req.body;
+
     if (!userId) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
+      return res.status(401).json({ message: "Unauthorized" });
     }
-    if (!productId || !quantity) {
-      res.status(400).json({ message: "Missing required fields" });
-      return;
+
+    if (!productId || !quantity || !sizes) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
     let userKoCartExist = await Cart.findOne({
-      where: {
-        userId,
-        productId,
-      },
+      where: { userId, productId },
     });
 
     if (userKoCartExist) {
       userKoCartExist.quantity += quantity;
       await userKoCartExist.save();
     } else {
-      await Cart.create({
-        userId,
-        productId,
-        quantity,
-      });
+      await Cart.create({ userId, productId, quantity, sizes });
     }
 
     const cartData = await Cart.findAll({
-      where: {
-        userId,
-      },
-      include: [
-        {
-          model: Shoe,
-          include: [
-            {
-              model: Category,
-            },
-          ],
-        },
-      ],
+      where: { userId },
+      include: [{ model: Shoe, include: [Category] }],
     });
-    res.status(201).json({
+
+    return res.status(201).json({
       message: "Product added to cart successfully",
       data: cartData,
     });
@@ -64,26 +46,20 @@ class CartController {
 
   async getCart(req: IAuth, res: Response) {
     const userId = req.user?.id;
+
     if (!userId) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
+      return res.status(401).json({ message: "Unauthorized" });
     }
-    const [cartData] = await Cart.findAll({
-      where: {
-        userId,
-      },
-      include: [
-        {
-          model: Shoe,
-          attributes: ["id", "name", "brand", "price", "imageUrl"],
-        },
-      ],
+
+    const cartData = await Cart.findAll({
+      where: { userId },
+      include: [{
+        model: Shoe,
+        attributes: ["id", "name", "price", "images", "sizes"],
+      }],
     });
-    if (!cartData) {
-      res.status(404).json({ message: "Cart not found" });
-      return;
-    }
-    res.status(200).json({
+
+    return res.status(201).json({
       message: "Cart fetched successfully",
       data: cartData,
     });
@@ -92,21 +68,20 @@ class CartController {
   async removeFromCart(req: IAuth, res: Response) {
     const userId = req.user?.id;
     const { productId } = req.body;
+
     if (!userId) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
+      return res.status(401).json({ message: "Unauthorized" });
     }
+
     if (!productId) {
-      res.status(400).json({ message: "Product ID is required" });
-      return;
+      return res.status(400).json({ message: "Product ID is required" });
     }
+
     await Cart.destroy({
-      where: {
-        userId,
-        productId,
-      },
+      where: { userId, productId },
     });
-    res.status(201).json({
+
+    return res.status(201).json({
       message: "Product removed from cart successfully",
       data: productId,
     });
@@ -115,45 +90,30 @@ class CartController {
   async updateCart(req: IAuth, res: Response) {
     const userId = req.user?.id;
     const { productId, quantity } = req.body;
+
     if (!userId) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
+      return res.status(401).json({ message: "Unauthorized" });
     }
-    if (!productId || !quantity) {
-      res.status(400).json({ message: "Product ID and quantity are required" });
-      return;
+
+    if (!productId || typeof quantity !== "number") {
+      return res
+        .status(400)
+        .json({ message: "Product ID and valid quantity are required" });
     }
 
     const cartItem = await Cart.findOne({
-      where: {
-        userId,
-        productId,
-      },
+      where: { userId, productId },
     });
-    if (!cartItem) {
-      res.status(404).json({ message: "Cart item not found" });
-      return;
-    }
-    // await Cart.update(
-    //   {
-    //     quantity: quantity,
-    //   },
-    //   {
-    //     where: {
-    //         productId
-    //     },
-    //   }
 
-    // );
-    // res.status(201).json({
-    //     message:"cart is updated"
-    // })
+    if (!cartItem) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
 
     cartItem.quantity = quantity;
     await cartItem.save();
-    res.status(200).json({
+
+    return res.status(201).json({
       message: "Cart item updated successfully",
-    //   data: cartItem,
     });
   }
 }
