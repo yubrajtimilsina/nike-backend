@@ -1,6 +1,6 @@
+// controllers/cartController.ts
 import { Request, Response } from "express";
 import Cart from "../database/models/cartModel";
-import Category from "../database/models/categoryModel";
 import Shoe from "../database/models/productModel";
 
 interface IAuth extends Request {
@@ -12,30 +12,46 @@ interface IAuth extends Request {
 class CartController {
   async addToCart(req: IAuth, res: Response) {
     const userId = req.user?.id;
-    const { productId, quantity, sizes } = req.body;
+    const { productId, quantity, size, color } = req.body;
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    if (!productId || !quantity || !sizes) {
-      return res.status(400).json({ message: "Missing required fields" });
+    if (!productId || !quantity || !size || !color) {
+      return res.status(400).json({ message: "Missing required fields: productId, quantity, size, color" });
+    }
+
+    const product = await Shoe.findByPk(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    if (!product.sizes.includes(size)) {
+      return res.status(400).json({ message: "Invalid size selected" });
+    }
+    if (!product.colors.includes(color)) {
+      return res.status(400).json({ message: "Invalid color selected" });
     }
 
     let userKoCartExist = await Cart.findOne({
-      where: { userId, productId },
+      where: { userId, productId, size, color }, // Include color in check
     });
 
     if (userKoCartExist) {
       userKoCartExist.quantity += quantity;
       await userKoCartExist.save();
     } else {
-      await Cart.create({ userId, productId, quantity, sizes });
+      await Cart.create({ userId, productId, quantity, size, color });
     }
 
     const cartData = await Cart.findAll({
       where: { userId },
-      include: [{ model: Shoe, include: [Category] }],
+      include: [
+        {
+          model: Shoe,
+          attributes: ["id", "name", "price", "images", "sizes", "colors"],
+        },
+      ],
     });
 
     return res.status(201).json({
@@ -53,10 +69,12 @@ class CartController {
 
     const cartData = await Cart.findAll({
       where: { userId },
-      include: [{
-        model: Shoe,
-        attributes: ["id", "name", "price", "images", "sizes"],
-      }],
+      include: [
+        {
+          model: Shoe,
+          attributes: ["id", "name", "price", "images", "sizes", "colors"],
+        },
+      ],
     });
 
     return res.status(201).json({
@@ -67,42 +85,40 @@ class CartController {
 
   async removeFromCart(req: IAuth, res: Response) {
     const userId = req.user?.id;
-    const { productId } = req.body;
+    const { productId, size, color } = req.body;
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    if (!productId) {
-      return res.status(400).json({ message: "Product ID is required" });
+    if (!productId || !size || !color) {
+      return res.status(400).json({ message: "Product ID, size, and color are required" });
     }
 
     await Cart.destroy({
-      where: { userId, productId },
+      where: { userId, productId, size, color },
     });
 
     return res.status(201).json({
       message: "Product removed from cart successfully",
-      data: productId,
+      data: { productId, size, color },
     });
   }
 
   async updateCart(req: IAuth, res: Response) {
     const userId = req.user?.id;
-    const { productId, quantity } = req.body;
+    const { productId, quantity, size, color } = req.body;
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    if (!productId || typeof quantity !== "number") {
-      return res
-        .status(400)
-        .json({ message: "Product ID and valid quantity are required" });
+    if (!productId || typeof quantity !== "number" || !size || !color) {
+      return res.status(400).json({ message: "Product ID, valid quantity, size, and color are required" });
     }
 
     const cartItem = await Cart.findOne({
-      where: { userId, productId },
+      where: { userId, productId, size, color },
     });
 
     if (!cartItem) {
@@ -112,8 +128,9 @@ class CartController {
     cartItem.quantity = quantity;
     await cartItem.save();
 
-    return res.status(201).json({
+    return res.status(200).json({
       message: "Cart item updated successfully",
+      data: cartItem,
     });
   }
 }

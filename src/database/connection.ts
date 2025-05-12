@@ -30,7 +30,7 @@ try {
   process.exit(1);
 }
 
-sequelize.sync({ force: false, alter: false }).then(() => {
+sequelize.sync({ force: false, alter: true }).then(() => {
   console.log("Database synced successfully");
 });
 
@@ -57,7 +57,7 @@ Shoe.hasMany(Cart, { foreignKey: "productId" });
 
 // user x cart
 Cart.belongsTo(User, { foreignKey: "userId" });
-User.hasOne(Cart, { foreignKey: "userId" });
+User.hasMany(Cart, { foreignKey: "userId" });
 
 // order x user
 Order.belongsTo(User, { foreignKey: "userId" });
