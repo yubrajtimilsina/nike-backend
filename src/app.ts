@@ -6,6 +6,7 @@ import productRoute from "./routes/productRoute";
 import productReview from './routes/productReviewRoute'
 import collectionRoute from "./routes/collectionRoute";
 import cartRoute from './routes/cartRoute'
+import orderRoute from './routes/orderRoute'
 import cors from "cors";
 const app = express();
 app.use(express.json());
@@ -23,6 +24,7 @@ app.use("/api/product", productRoute);
 app.use('/api/collection',collectionRoute)
 app.use("/api", productReview); 
 app.use('/api/cart',cartRoute)
+app.use('/api/order',orderRoute)
 
 app.use(express.static('./src/uploads'));
 

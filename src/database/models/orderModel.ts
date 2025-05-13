@@ -1,5 +1,7 @@
-import { Table, Column, Model, DataType, Validate } from "sequelize-typescript";
+import { Table, Column, Model, DataType, Validate, ForeignKey } from "sequelize-typescript";
 import { OrderStatus } from "../../services/types";
+import User from "./userModel";
+import Payment from "./paymentModel";
 
 @Table({
   tableName: "orders",
@@ -27,7 +29,7 @@ class Order extends Model {
   declare lastName: string;
 
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.STRING,
     allowNull: false,
     validate: {
       len: {
@@ -80,6 +82,20 @@ class Order extends Model {
     })
     declare totalPrice: number;
 
+    @ForeignKey(()=>User)
+    @Column({
+      type:DataType.STRING,
+      allowNull:false
+    })
+    declare userId:string
+
+
+    @ForeignKey(()=>Payment)
+    @Column({
+      type:DataType.STRING,
+      allowNull:false
+    })
+    declare paymentId:String
 
 
 }

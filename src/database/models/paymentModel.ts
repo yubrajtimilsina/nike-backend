@@ -20,15 +20,20 @@ class Payment extends Model {
       PaymentMethod.Esewa,
       PaymentMethod.Khalti
     ),
-    allowNull: false, // required : false
+    
   })
   declare paymentMethod: string;
 
   @Column({
     type: DataType.ENUM(PaymentStatus.Paid, PaymentStatus.Unpaid),
-    allowNull: false, // required : false
+    defaultValue: PaymentStatus.Unpaid 
   })
   declare paymentStatus: string;
+
+  @Column({
+    type:DataType.STRING
+  })
+  declare pidx:string
 }
 
 export default Payment;
