@@ -75,10 +75,9 @@ class Shoe extends Model {
   declare colors: string[];
 
   @Column({
-    type: DataType.ARRAY(DataType.STRING),
-    defaultValue: []
+    type: DataType.STRING,
   })
-  declare images: string[];
+  declare images: string;
 
   @Column({
     type: DataType.BOOLEAN,

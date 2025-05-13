@@ -19,7 +19,9 @@ class CartController {
     }
 
     if (!productId || !quantity || !size || !color) {
-      return res.status(400).json({ message: "Missing required fields: productId, quantity, size, color" });
+      return res.status(400).json({
+        message: "Missing required fields: productId, quantity, size, color",
+      });
     }
 
     const product = await Shoe.findByPk(productId);
@@ -72,7 +74,7 @@ class CartController {
       include: [
         {
           model: Shoe,
-          attributes: ["id", "name", "price", "images", "sizes", "colors"],
+          attributes: ["id", "name", "price", "images"],
         },
       ],
     });
@@ -85,53 +87,50 @@ class CartController {
 
   async removeFromCart(req: IAuth, res: Response) {
     const userId = req.user?.id;
-    const { productId, size, color } = req.body;
+    const { productId } = req.params;
+    const product = await Shoe.findByPk(productId);
 
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    if (!productId || !size || !color) {
-      return res.status(400).json({ message: "Product ID, size, and color are required" });
+    if (!productId) {
+      return res.status(400).json({ message: "Product ID required" });
     }
 
     await Cart.destroy({
-      where: { userId, productId, size, color },
+      where: { userId, productId },
     });
 
     return res.status(201).json({
       message: "Product removed from cart successfully",
-      data: { productId, size, color },
     });
   }
 
   async updateCart(req: IAuth, res: Response) {
     const userId = req.user?.id;
-    const { productId, quantity, size, color } = req.body;
-
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+    const{ productId} = req.params;
+    const { quantity } = req.body;
+    if (!quantity) {
+      res.status(400).json({
+        message: "Please provide quantity",
+      });
+      return;
     }
-
-    if (!productId || typeof quantity !== "number" || !size || !color) {
-      return res.status(400).json({ message: "Product ID, valid quantity, size, and color are required" });
-    }
-
     const cartItem = await Cart.findOne({
-      where: { userId, productId, size, color },
+      where: {
+        userId,
+        productId,
+      },
     });
 
     if (!cartItem) {
       return res.status(404).json({ message: "Cart item not found" });
+    } else {
+      cartItem.quantity = quantity;
+      await cartItem.save();
+
+      res.status(201).json({
+        message: "Cart item updated successfully",
+        data: cartItem,
+      });
     }
-
-    cartItem.quantity = quantity;
-    await cartItem.save();
-
-    return res.status(200).json({
-      message: "Cart item updated successfully",
-      data: cartItem,
-    });
   }
 }
 

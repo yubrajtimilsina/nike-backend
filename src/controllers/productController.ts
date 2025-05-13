@@ -64,7 +64,7 @@ class ProductController {
       inStock: inStock === "true" || inStock === true,
       isNew: isNew === "true" || isNew === true,
       description: description || "No description",
-      images: [filename],
+      images: filename,
       
       collectionId,
       totalStock
@@ -169,7 +169,7 @@ class ProductController {
           ? isNew === "true" || isNew === true
           : product.isNew,
       description: description ?? product.description,
-      images: filename ? [filename] : product.images,
+      images: filename ? filename : product.images,
       collectionId,
       totalStock: totalStock || product.totalStock,
 
@@ -193,7 +193,7 @@ class ProductController {
 
     await product.destroy();
 
-    res.status(200).json({
+    res.status(201).json({
       message: "Product deleted successfully",
       data: product,
     });
@@ -232,7 +232,7 @@ class ProductController {
       ],
     });
 
-    res.status(200).json({
+    res.status(201).json({
       message: "Products fetched successfully",
       data: products,
     });
