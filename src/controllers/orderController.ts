@@ -168,7 +168,7 @@ class OrderController {
       where: {
         userId,
       },
-      attributes: ["totalPrice", "id", "orderStatus"],
+      attributes: ["totalPrice", "id", "status"],
       include: {
         model: Payment,
         attributes: ["paymentMethod", "paymentStatus"],
