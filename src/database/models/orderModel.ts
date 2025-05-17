@@ -97,6 +97,12 @@ class Order extends Model {
     })
     declare paymentId:String
 
+    @Column({
+      type: DataType.STRING,
+      defaultValue: '1'
+    })
+    declare state: string
+
 
 }
 

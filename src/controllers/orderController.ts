@@ -48,7 +48,7 @@ class OrderController {
       !email
     ) {
       res.status(400).json({
-        message: "Please provide phoneNumber,totalAmount,products",
+        message: "Please provide phoneNumber,products,addressLine",
       });
       return;
     }
@@ -127,43 +127,49 @@ class OrderController {
         data,
       });
     }
-
   }
-     async verifyTransaction(req:IAuth,res:Response):Promise<void>{
-      const {pidx} = req.body 
-      if(!pidx){
-        res.status(400).json({
-          message : "Please provide pidx"
-        })
-        return
-      }
-      const response = await axios.post("https://a.khalti.com/api/v2/epayment/lookup/",{
-        pidx : pidx
-      },{
-        headers : {
-          "Authorization" : "Key b71142e3f4fd4da8acccd01c8975be38"
-        }
-      })
-      const data = response.data 
-      if(data.status === "Completed"){
-        await Payment.update({paymentStatus : PaymentStatus.Paid},{
-          where : {
-            pidx : pidx 
-          }
-        })
-        res.status(200).json({
-          message : "Payment verified successfully !!"
-        })
-      }else{
-        res.status(200).json({
-          message : "Payment not verified or cancelled"
-        })
-      }
-
+  async verifyTransaction(req: IAuth, res: Response): Promise<void> {
+    const { pidx } = req.body;
+    if (!pidx) {
+      res.status(400).json({
+        message: "Please provide pidx",
+      });
+      return;
     }
+    const response = await axios.post(
+      "https://a.khalti.com/api/v2/epayment/lookup/",
+      {
+        pidx: pidx,
+      },
+      {
+        headers: {
+          Authorization: "Key b71142e3f4fd4da8acccd01c8975be38",
+        },
+      }
+    );
+    const data = response.data;
+    if (data.status === "Completed") {
+      await Payment.update(
+        { paymentStatus: PaymentStatus.Paid },
+        {
+          where: {
+            pidx: pidx,
+          },
+        }
+      );
+      res.status(200).json({
+        message: "Payment verified successfully !!",
+      });
+    } else {
+      res.status(200).json({
+        message: "Payment not verified or cancelled",
+      });
+    }
+  }
 
-  async fetchMyOrder(req: IAuth, res: Response):Promise<void> {
+  async fetchMyOrder(req: IAuth, res: Response): Promise<void> {
     const userId = req.user?.id;
+    const { pidx } = req.body;
     const orders = await Order.findAll({
       where: {
         userId,
@@ -174,78 +180,91 @@ class OrderController {
         attributes: ["paymentMethod", "paymentStatus"],
       },
     });
-     if(orders.length > 0){
-        res.status(200).json({
-          message : "Order fetched successfully", 
-          data : orders 
-        })
-      }else{
-        res.status(404).json({
-          message : "No order found", 
-          data : []
-        })
-      }
+    if (orders.length > 0) {
+      res.status(201).json({
+        message: "Order fetched successfully",
+        data: orders,
+        pidx: pidx,
+      });
+    } else {
+      res.status(404).json({
+        message: "No order found",
+        data: [],
+      });
+    }
   }
-  async  fetchMyOrderDetail(req:IAuth,res:Response):Promise<void>{
-      const orderId = req.params.id 
-      const userId = req.user?.id 
-      const orders = await OrderDetails.findAll({
-        where : {
-          orderId, 
-
-        }, 
-        include : [{
-          model : Order , 
-          include : [
+  async fetchMyOrderDetail(req: IAuth, res: Response): Promise<void> {
+    const orderId = req.params.id;
+    const userId = req.user?.id;
+    const orders = await OrderDetails.findAll({
+      where: {
+        orderId,
+      },
+      include: [
+        {
+          model: Order,
+          include: [
             {
-              model : Payment, 
-              attributes : ["paymentMethod","paymentStatus"]
-            }
+              model: Payment,
+              attributes: ["paymentMethod", "paymentStatus"],
+            },
           ],
-          attributes : ["orderStatus","AddressLine","City","State","totalAmount","phoneNumber", "firstName", "lastName","userId"]
-        },{
-          model : Shoe, 
-          include : [{
-            model : Category
-          }], 
-          attributes : ["productImageUrl","productName","productPrice"]
-        }]
-      })
-      if(orders.length > 0){
-        res.status(200).json({
-          message : "Order fetched successfully", 
-          data : orders 
-        })
-      }else{
-        res.status(404).json({
-          message : "No order found", 
-          data : []
-        })
-      }
+          attributes: [
+            "status",
+            "addressLine",
+            "city",
+            "state",
+            "totalPrice",
+            "phoneNumber",
+            "firstName",
+            "lastName",
+            "userId",
+          ],
+        },
+        {
+          model: Shoe,
+          include: [
+            {
+              model: Category,
+            },
+          ],
+          attributes: ["images", "name", "price"],
+        },
+      ],
+    });
+    if (orders.length > 0) {
+      res.status(200).json({
+        message: "Order details fetched successfully",
+        data: orders,
+      });
+    } else {
+      res.status(404).json({
+        message: "No order found",
+        data: [],
+      });
     }
-    
-     async fetchAllOrders(req:IAuth,res:Response):Promise<void>{
-      
-      const orders = await Order.findAll({
-       
-        attributes : ["totalAmount","id","orderStatus"], 
-        include : {
-          model : Payment, 
-          attributes : ["paymentMethod", "paymentStatus"]
-        }
-      })
-      if(orders.length > 0){
-        res.status(201).json({
-          message : "Order fetched successfully", 
-          data : orders 
-        })
-      }else{
-        res.status(404).json({
-          message : "No order found", 
-          data : []
-        })
-      }
+  }
+
+  async fetchAllOrders(req: IAuth, res: Response): Promise<void> {
+    const orders = await Order.findAll({
+      attributes: ["totalAmount", "id", "orderStatus"],
+      include: {
+        model: Payment,
+        attributes: ["paymentMethod", "paymentStatus"],
+      },
+    });
+    if (orders.length > 0) {
+      res.status(201).json({
+        message: "Order fetched successfully",
+        data: orders,
+      });
+    } else {
+      res.status(404).json({
+        message: "No order found",
+        data: [],
+      });
     }
+  }
 }
 
 export default new OrderController();

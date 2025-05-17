@@ -10,6 +10,7 @@ router.route("/").post(userMiddleware.isUserLoggedIn, errorHandler(orderControll
 router.route("/all").get(userMiddleware.isUserLoggedIn,userMiddleware.accessTo(Role.Admin), errorHandler(orderController.fetchAllOrders))
 
 router.route("/verify-pidx").post(userMiddleware.isUserLoggedIn,errorHandler(orderController.verifyTransaction))
+router.route('/:id').get(userMiddleware.isUserLoggedIn,errorHandler(orderController.fetchMyOrderDetail  ))
 
 
 export default router

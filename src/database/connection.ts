@@ -68,7 +68,7 @@ Order.belongsTo(Payment, { foreignKey: "paymentId" });
 Payment.hasOne(Order, { foreignKey: "paymentId" });
 
 // order x oderDetaills
-OrderDetails.belongsTo(Order, { foreignKey: "OrderId" });
+OrderDetails.belongsTo(Order, { foreignKey: "orderId" });
 Order.hasOne(OrderDetails, { foreignKey: "orderId" });
 
 //  orderDetaills x Product
