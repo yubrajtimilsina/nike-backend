@@ -1,3 +1,4 @@
+import { OrderStatus } from "./../services/types";
 import { Response, Request } from "express";
 import Payment from "../database/models/paymentModel";
 import { PaymentMethod, PaymentStatus } from "../services/types";
@@ -17,6 +18,11 @@ interface IProduct {
   productId: string;
   productQty: number;
 }
+
+class OrderWithPaymentId extends Order{
+  declare paymentId: string;
+}
+
 class OrderController {
   async createOrder(req: IAuth, res: Response): Promise<void> {
     const userId = req.user?.id;
@@ -265,6 +271,97 @@ class OrderController {
       });
     }
   }
-}
+  async cancelOrder(req: IAuth, res: Response): Promise<void> {
+    const userId = req.user?.id;
+    const orderId = req.params.id;
+    const [order] = await Order.findAll({
+      where: {
+        userId,
+        id: orderId,
+      },
+    });
+    if (!order) {
+      res.status(400).json({
+        message: "No order with that id",
+      });
+      return;
+    }
+    //check other status
+
+    if (
+      order.status === OrderStatus.Ontheway ||
+      order.status === OrderStatus.Preparation
+    ) {
+      res.status(403).json({
+        message:
+          "You cannot cancelled order, it is on the way or preparation mode",
+      });
+      return;
+    }
+    await Order.update(
+      { status: OrderStatus.Cancelled },
+      {
+        where: {
+          id: orderId,
+        },
+      }
+    );
+    res.status(201).json({
+      message: "Order cancelled successfully",
+    });
+  }
+
+  async changeOrderStatus(req: IAuth, res: Response): Promise<void> {
+    const orderId = req.params.id;
+    const { status } = req.body;
+    if (!orderId || !status) {
+      res.status(400).json({
+        message: "Please provide orderId and orderStatus",
+      });
+    }
+    await Order.update(
+      { status: OrderStatus },
+      {
+        where: {
+          id: orderId,
+        },
+      }
+    );
+    res.status(201).json({
+      message: "Order status updated successfully",
+    });
+  }
+
+
+  async deleteOrder(req:IAuth, res:Response) : Promise<void>{
+
+      const orderId = req.params.id 
+      const order : OrderWithPaymentId= await Order.findByPk(orderId) as OrderWithPaymentId
+      const paymentId = order?.paymentId
+      if(!order){
+        res.status(404).json({
+          message : "You dont have that orderId order"
+        })
+        return
+      }
+      await OrderDetails.destroy({
+        where : {
+          orderId : orderId
+        }
+      })
+      await Payment.destroy({
+        where : {
+          id : paymentId
+        }
+      })
+      await Order.destroy({
+        where : {
+          id : orderId
+        }
+      })
+      res.status(201).json({
+        message : "Order delete successfully"
+      })
+    }}
 
 export default new OrderController();
