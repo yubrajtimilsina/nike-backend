@@ -83,6 +83,7 @@ class CategoryController{
     async updateCategory(req:Request,res:Response):Promise<void>{
         const {id} = req.params
         const {categoryName} = req.body 
+        
         if(!id || !categoryName){
             res.status(400).json({
                 message : "Please provide id, categoryName to update"
