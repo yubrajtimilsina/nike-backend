@@ -4,6 +4,7 @@ import Shoe from "../database/models/productModel";
 import Collection from "../database/models/collectionModel";
 import { envConfig } from "../config/config";
 import jwt from "jsonwebtoken";
+import Cart from "../database/models/cartModel";
 class ProductController {
   async createProduct(req: Request, res: Response): Promise<void> {
     const {
@@ -86,6 +87,10 @@ class ProductController {
           model: Collection,
           attributes: ["id", "collectionName"],
         },
+        {
+          model:Cart,
+          attributes:['id','color','quantity','size']
+        }
       ],
     });
 
@@ -237,6 +242,10 @@ class ProductController {
       data: products,
     });
   }
+
+
+
+  
 
   //   async createProductReview(req: Request, res: Response): Promise<void> {
   //     const { id } = req.params;

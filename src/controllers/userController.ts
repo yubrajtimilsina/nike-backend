@@ -1,4 +1,4 @@
-import  otpGenerator  from 'otp-generator';
+import otpGenerator from "otp-generator";
 import { envConfig } from "./../config/config";
 import jwt, { Secret } from "jsonwebtoken";
 import { Request, Response } from "express";
@@ -7,7 +7,8 @@ import bcrypt from "bcrypt";
 
 import sendMail from "../services/sendMail";
 import checkOtpExpiration from "../services/optExpiration";
-import { Role } from '../middleware/userMiddleware';
+import { Role } from "../middleware/userMiddleware";
+import { promises } from "nodemailer/lib/xoauth2";
 
 class UserController {
   static async register(req: Request, res: Response): Promise<void> {
@@ -28,7 +29,7 @@ class UserController {
         return;
       }
 
-   const data=   await User.create({
+      const data = await User.create({
         username,
         email,
         password: bcrypt.hashSync(password, 10),
@@ -36,8 +37,7 @@ class UserController {
 
       res.status(201).json({
         message: "User registered successfully",
-        data
-
+        data,
       });
     } catch (error) {
       console.error(error);
@@ -74,9 +74,13 @@ class UserController {
         return;
       }
 
-      const token = jwt.sign({ userId: user.id }, envConfig.jwtSecret as Secret, {
-        expiresIn: "30d",
-      });
+      const token = jwt.sign(
+        { userId: user.id },
+        envConfig.jwtSecret as Secret,
+        {
+          expiresIn: "30d",
+        }
+      );
 
       res.status(201).json({
         message: "User logged in successfully",
@@ -185,6 +189,34 @@ class UserController {
         message: "Internal server error",
       });
     }
+  }
+
+  static async fetchUsers(req: Request, res: Response) {
+    const user = await User.findAll({
+      attributes: ["id", "username", "email", "role"],
+    });
+    res.status(201).json({
+      message: "User fetched successfully",
+      data: user,
+    });
+  }
+
+  static async deleteUser(req: Request, res: Response) {
+    const { id } = req.params;
+    if (!id) {
+      res.status(400).json({
+        message: "Please provide Id",
+      });
+      return;
+    }
+    await User.destroy({
+      where: {
+        id,
+      },
+    });
+    res.status(201).json({
+      message: "User delete Successfully",
+    });
   }
 }
 

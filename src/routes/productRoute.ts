@@ -15,7 +15,7 @@ router
   .route("/")
   .post(
     userMiddleware.isUserLoggedIn,
-    userMiddleware.accessTo(Role.Admin),
+   
     upload.single("images"),
     errorHandler(productController.createProduct)
   )
