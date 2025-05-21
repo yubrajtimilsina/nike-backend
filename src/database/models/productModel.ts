@@ -1,4 +1,6 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey } from 'sequelize-typescript';
+import Category from './categoryModel';
+import Collection from './collectionModel';
 
 @Table({
   tableName: "shoes",
@@ -99,11 +101,23 @@ class Shoe extends Model {
   })
   declare totalStock: Number;
 
+  @ForeignKey(()=>Category)
+  @Column({
+    type:DataType.STRING
+
+  })
+  declare categoryId:string
+
+
+  @ForeignKey(()=>Collection)
+  @Column({
+    type:DataType.STRING
+
+  })
+  declare collectionId:string
+
   
 
-  // Associations
-  // @HasMany(() => ProductReview)
-  // declare reviews: ProductReview[];
 }
 
 export default Shoe;

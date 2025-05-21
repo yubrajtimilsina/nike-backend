@@ -3,8 +3,8 @@ import productController from "../controllers/productController";
 import userMiddleware, { Role } from "../middleware/userMiddleware";
 import errorHandler from "../services/errorHandler";
 // import multer from "multer";
-import { storage,multer } from "../middleware/multer";
-const upload= multer({storage:storage})
+import { storage, multer } from "../middleware/multer";
+const upload = multer({ storage: storage });
 const router: Router = express.Router();
 
 router
@@ -13,12 +13,7 @@ router
 
 router
   .route("/")
-  .post(
-    userMiddleware.isUserLoggedIn,
-   
-    upload.single("images"),
-    errorHandler(productController.createProduct)
-  )
+  .post(upload.single("images"), errorHandler(productController.createProduct))
   .get(productController.getAllProducts);
 
 router

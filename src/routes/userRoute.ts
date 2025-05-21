@@ -8,16 +8,13 @@ router.route("/register").post(UserController.register);
 router.route("/login").post(UserController.login);
 router.route("/forgot-password").post(UserController.forgotPassword);
 router.route("/reset-password").post(UserController.resetPassword);
-router.route("/users").get(
-  userMiddleware.isUserLoggedIn,
-
-  errorHandler(UserController.fetchUsers)
-);
+router.route("/users").get(errorHandler(UserController.fetchUsers));
 router
   .route("/users/:id")
   .delete(
-    userMiddleware.isUserLoggedIn,
+    
     errorHandler(UserController.deleteUser)
   );
+router.route("/logins").post(UserController.adminLogin);
 
 export default router;

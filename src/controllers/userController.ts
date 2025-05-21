@@ -1,3 +1,4 @@
+import { Role } from './../middleware/userMiddleware';
 import otpGenerator from "otp-generator";
 import { envConfig } from "./../config/config";
 import jwt, { Secret } from "jsonwebtoken";
@@ -7,7 +8,6 @@ import bcrypt from "bcrypt";
 
 import sendMail from "../services/sendMail";
 import checkOtpExpiration from "../services/optExpiration";
-import { Role } from "../middleware/userMiddleware";
 import { promises } from "nodemailer/lib/xoauth2";
 
 class UserController {
@@ -85,12 +85,7 @@ class UserController {
       res.status(201).json({
         message: "User logged in successfully",
         token,
-        user: {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          Role: user.role,
-        },
+      
       });
     } catch (error) {
       console.error(error);
@@ -193,8 +188,12 @@ class UserController {
 
   static async fetchUsers(req: Request, res: Response) {
     const user = await User.findAll({
+      where:{
+        role:Role.Customer
+      },
       attributes: ["id", "username", "email", "role"],
     });
+
     res.status(201).json({
       message: "User fetched successfully",
       data: user,
@@ -203,12 +202,28 @@ class UserController {
 
   static async deleteUser(req: Request, res: Response) {
     const { id } = req.params;
+
+    
     if (!id) {
       res.status(400).json({
         message: "Please provide Id",
       });
       return;
     }
+    
+  // Find the user to check their role
+  const userToDelete = await User.findOne({ where: { id } });
+
+  if (!userToDelete) {
+    res.status(404).json({ message: "User not found" });
+    return;
+  }
+
+  // Prevent deleting users with Admin role
+  if (userToDelete.role === Role.Admin) {
+    res.status(403).json({ message: "Admins cannot be deleted" });
+    return;
+  }
     await User.destroy({
       where: {
         id,
@@ -218,6 +233,61 @@ class UserController {
       message: "User delete Successfully",
     });
   }
+  // login for user for admin panel
+
+static async adminLogin(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, password,role } = req.body;
+      if (!email || !password) {
+        res.status(400).json({
+          message: "Fill all the fields",
+        });
+        return;
+      }
+
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        res.status(400).json({
+          message: "User not found",
+        });
+        return;
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        res.status(400).json({
+          message: "Invalid password",
+        });
+        return;
+      }
+      if(user.role!==Role.Admin){
+          res.status(403).json({ message: "Access denied. Admins only." });
+      return;
+
+      }
+
+      const token = jwt.sign(
+        { userId: user.id },
+        envConfig.jwtSecret as Secret,
+        {
+          expiresIn: "30d",
+        }
+      );
+
+      res.status(201).json({
+        message: "Admin logged in successfully",
+        token,
+      
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        message: "Internal server error",
+      });
+    }
+  }
+
 }
+
 
 export default UserController;

@@ -94,7 +94,7 @@ class ProductController {
       ],
     });
 
-    res.status(201).json({
+    res.status(200).json({
       message: "Products fetched successfully",
       data: products,
     });
