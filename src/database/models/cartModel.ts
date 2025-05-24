@@ -45,6 +45,7 @@ class Cart extends Model {
     type: DataType.STRING,
   })
   declare color: string; 
+
 }
 
 export default Cart;

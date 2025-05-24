@@ -5,6 +5,9 @@ import Collection from "../database/models/collectionModel";
 import { envConfig } from "../config/config";
 import jwt from "jsonwebtoken";
 import Cart from "../database/models/cartModel";
+import ProductReview from "../database/models/productReviewModal";
+import User from "../database/models/userModel";
+import { Model } from "sequelize-typescript";
 class ProductController {
   async createProduct(req: Request, res: Response): Promise<void> {
     const {
@@ -21,11 +24,20 @@ class ProductController {
       isNew,
       description,
       totalStock,
-     
+
       collectionId,
     } = req.body;
 
-    if (!name || !brand || !price || !originalPrice || !categoryId || !collectionId ||!totalStock || !description )  {
+    if (
+      !name ||
+      !brand ||
+      !price ||
+      !originalPrice ||
+      !categoryId ||
+      !collectionId ||
+      !totalStock ||
+      !description
+    ) {
       res.status(400).json({
         message:
           "Missing required fields: name, brand, price, originalPrice, category",
@@ -66,9 +78,9 @@ class ProductController {
       isNew: isNew === "true" || isNew === true,
       description: description || "No description",
       images: filename,
-      
+
       collectionId,
-      totalStock
+      totalStock,
     });
 
     res.status(201).json({
@@ -78,19 +90,19 @@ class ProductController {
   }
   async getAllProducts(req: Request, res: Response): Promise<void> {
     const products = await Shoe.findAll({
+      
       include: [
         {
           model: Category,
           attributes: ["id", "categoryName"],
+
         },
-        {
+         {
           model: Collection,
           attributes: ["id", "collectionName"],
         },
-        {
-          model:Cart,
-          attributes:['id','color','quantity','size']
-        }
+      
+      
       ],
     });
 
@@ -110,6 +122,18 @@ class ProductController {
           model: Category,
           attributes: ["id", "categoryName"],
         },
+        {
+          model: Collection,
+          attributes: ["id", "collectionName"],
+        },
+          {
+          model: ProductReview,
+          attributes:['id','rating','comment','userId','productId','createdAt']
+        },
+        {
+          model:Cart
+        }
+      
       ],
     });
 
@@ -118,7 +142,7 @@ class ProductController {
       return;
     }
 
-    res.status(201).json({
+    res.status(200).json({
       message: "Product fetched successfully",
       data: product,
     });
@@ -140,7 +164,7 @@ class ProductController {
       isNew,
       description,
       collectionId,
-      totalStock
+      totalStock,
     } = req.body;
 
     const filename = req.file?.filename;
@@ -177,7 +201,6 @@ class ProductController {
       images: filename ? filename : product.images,
       collectionId,
       totalStock: totalStock || product.totalStock,
-
     });
 
     res.status(200).json({
@@ -204,92 +227,6 @@ class ProductController {
     });
   }
 
-  async getProductByCollectionId(req: Request, res: Response): Promise<void> {
-    const { collectionId } = req.params;
-
-    const products = await Shoe.findAll({
-      where: { collectionId },
-      include: [
-        {
-          model: Category,
-          attributes: ["id", "categoryName"],
-        },
-        {
-          model: Shoe,
-          attributes: [
-            "id",
-            "name",
-            "brand",
-            "price",
-            "originalPrice",
-            "discount",
-            "sizes",
-            "colors",
-            "features",
-            "inStock",
-            "isNew",
-            "description",
-            "images"
-
-          ],
-          where: { collectionId },
-        },
-      ],
-    });
-
-    res.status(201).json({
-      message: "Products fetched successfully",
-      data: products,
-    });
-  }
-
-
-
-  
-
-  //   async createProductReview(req: Request, res: Response): Promise<void> {
-  //     const { id } = req.params;
-  //     const decoded=jwt.verify(req.headers.authorization as string,envConfig.jwtSecret as string) 
-  //     // @ts-ignore
-  //     const username=decoded.username 
-  //     console.log(username)
-
-  //     const { comment, rating } = req.body;
-
-  //     if (!comment || !rating) {
-  //       res
-  //         .status(400)
-  //         .json({ message: "Missing required fields: review, rating" });
-  //       return;
-  //     }
-
-  //     const productReview = await Prod.({
-  //       comment,
-  //       rating,
-  //       username: username,
-  //       productId: id,
-  //     });
-
-  //     res.status(201).json({
-  //       message: "Product review created successfully",
-  //       data: productReview,
-  //     });
-  //   }
-
-  // async getProductReviews(req: Request, res: Response): Promise<void> {
-  //   const { id } = req.params;
-
-  //   const productReviews = await Shoe.findAll({
-  //     where: {
-  //       id
-  //     },
-  //   });
-
-  //   res.status(200).json({
-  //     message: "Product reviews fetched successfully",
-  //     data: productReviews,
-  //   });
-  // }
 }
 
 export default new ProductController();

@@ -1,7 +1,7 @@
 import { Sequelize } from "sequelize-typescript";
 import { envConfig } from "../config/config";
 import Category from "./models/categoryModel";
-import ProductReview from "./models/productReview";
+import ProductReview from "./models/productReviewModal";
 import Shoe from "./models/productModel";
 import User from "./models/userModel";
 import Collection from "./models/collectionModel";

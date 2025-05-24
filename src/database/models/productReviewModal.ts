@@ -3,7 +3,10 @@ import {
   Column,
   Model,
   DataType,
+  ForeignKey,
 } from "sequelize-typescript";
+import User from "./userModel";
+import Shoe from "./productModel";
 
 @Table({
   tableName: "product_reviews",
@@ -36,6 +39,17 @@ class ProductReview extends Model {
     },
   })
   declare comment: string;
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.STRING,
+  })
+  declare userId: string;
+
+  @ForeignKey(() => Shoe)
+  @Column({
+    type: DataType.STRING,
+  })
+  declare productId: string;
 }
 
 export default ProductReview;

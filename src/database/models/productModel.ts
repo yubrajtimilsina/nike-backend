@@ -1,78 +1,77 @@
-import { Table, Column, Model, DataType, ForeignKey } from 'sequelize-typescript';
-import Category from './categoryModel';
-import Collection from './collectionModel';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  ForeignKey,
+} from "sequelize-typescript";
+import Category from "./categoryModel";
+import Collection from "./collectionModel";
 
 @Table({
   tableName: "shoes",
   modelName: "Shoe",
   timestamps: true,
-  paranoid: true // For soft deletion
 })
 class Shoe extends Model {
   @Column({
     primaryKey: true,
     type: DataType.UUID,
-    defaultValue: DataType.UUIDV4
-
+    defaultValue: DataType.UUIDV4,
   })
   declare id: string;
 
   @Column({
     type: DataType.STRING(100),
     allowNull: false,
-    
   })
   declare name: string;
 
   @Column({
     type: DataType.STRING(50),
     allowNull: false,
-   
   })
   declare brand: string;
 
   @Column({
-    type: DataType.FLOAT, 
+    type: DataType.FLOAT,
     allowNull: false,
-   
   })
   declare price: number;
 
   @Column({
     type: DataType.INTEGER,
     defaultValue: 0,
-   
   })
   declare discount: number;
 
   @Column({
     type: DataType.FLOAT,
-    allowNull: false
+    allowNull: false,
   })
   declare originalPrice: number;
 
   @Column({
     type: DataType.TEXT,
-    allowNull: false
-   
+    allowNull: false,
   })
   declare description: string;
 
   @Column({
     type: DataType.ARRAY(DataType.STRING),
-    defaultValue: []
+    defaultValue: [],
   })
   declare features: string[];
 
   @Column({
     type: DataType.ARRAY(DataType.STRING),
-    defaultValue: []
+    defaultValue: [],
   })
   declare sizes: string[];
 
   @Column({
     type: DataType.ARRAY(DataType.STRING),
-    defaultValue: []
+    defaultValue: [],
   })
   declare colors: string[];
 
@@ -83,41 +82,35 @@ class Shoe extends Model {
 
   @Column({
     type: DataType.BOOLEAN,
-    defaultValue: true
+    defaultValue: true,
   })
   declare inStock: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
-    defaultValue: false
+    defaultValue: false,
   })
   declare isNew: boolean;
-
 
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
-    defaultValue: 0
+    defaultValue: 0,
   })
   declare totalStock: Number;
-
-  @ForeignKey(()=>Category)
-  @Column({
-    type:DataType.STRING
-
-  })
-  declare categoryId:string
-
-
-  @ForeignKey(()=>Collection)
-  @Column({
-    type:DataType.STRING
-
-  })
-  declare collectionId:string
-
   
 
+  @ForeignKey(() => Category)
+  @Column({
+    type: DataType.STRING,
+  })
+  declare categoryId: string;
+
+  @ForeignKey(() => Collection)
+  @Column({
+    type: DataType.STRING,
+  })
+  declare collectionId: string;
 }
 
 export default Shoe;

@@ -186,6 +186,7 @@ class OrderController {
         attributes: ["paymentMethod", "paymentStatus"],
       },
     });
+    console.log(orders,"order")
     if (orders.length > 0) {
       res.status(201).json({
         message: "Order fetched successfully",
