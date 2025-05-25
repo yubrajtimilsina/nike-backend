@@ -180,7 +180,7 @@ class OrderController {
       where: {
         userId,
       },
-      attributes: ["totalPrice", "id", "status"],
+      attributes: ["totalPrice", "id", "orderStatus"],
       include: {
         model: Payment,
         attributes: ["paymentMethod", "paymentStatus"],
@@ -217,7 +217,7 @@ class OrderController {
             },
           ],
           attributes: [
-            "status",
+            "orderStatus",
             "addressLine",
             "city",
             "state",
@@ -254,11 +254,18 @@ class OrderController {
 
   async fetchAllOrders(req: IAuth, res: Response): Promise<void> {
     const orders = await Order.findAll({
-      attributes: ["totalAmount", "id", "orderStatus"],
-      include: {
-        model: Payment,
-        attributes: ["paymentMethod", "paymentStatus"],
-      },
+      attributes: ["totalPrice", "id", "orderStatus","createdAt",'paymentId'],
+      include: [
+        {
+          model:OrderDetails,
+          attributes:['quantity']
+        },
+       
+        {
+          model: Payment,
+          attributes: ["paymentMethod", "paymentStatus"],
+        }
+      ],
     });
     if (orders.length > 0) {
       res.status(201).json({
@@ -290,8 +297,8 @@ class OrderController {
     //check other status
 
     if (
-      order.status === OrderStatus.Ontheway ||
-      order.status === OrderStatus.Preparation
+      order.orderStatus === OrderStatus.Ontheway ||
+      order.orderStatus === OrderStatus.Preparation
     ) {
       res.status(403).json({
         message:
@@ -300,7 +307,7 @@ class OrderController {
       return;
     }
     await Order.update(
-      { status: OrderStatus.Cancelled },
+      { orderStatus: OrderStatus.Cancelled },
       {
         where: {
           id: orderId,
@@ -314,14 +321,14 @@ class OrderController {
 
   async changeOrderStatus(req: IAuth, res: Response): Promise<void> {
     const orderId = req.params.id;
-    const { status } = req.body;
-    if (!orderId || !status) {
+    const { orderStatus } = req.body;
+    if (!orderId || !orderStatus) {
       res.status(400).json({
         message: "Please provide orderId and orderStatus",
       });
     }
     await Order.update(
-      { status: OrderStatus },
+      { orderStatus: OrderStatus },
       {
         where: {
           id: orderId,

@@ -68,7 +68,7 @@ class Order extends Model {
         type: DataType.ENUM(OrderStatus.Cancelled, OrderStatus.Delivered, OrderStatus.Ontheway, OrderStatus.Preparation, OrderStatus.Pending),
         defaultValue: OrderStatus.Pending,
     })
-    declare status: OrderStatus;
+    declare orderStatus: OrderStatus;
 
     @Column({
         type: DataType.STRING,
@@ -102,6 +102,9 @@ class Order extends Model {
       defaultValue: '1'
     })
     declare state: string
+
+ 
+
 
 
 }

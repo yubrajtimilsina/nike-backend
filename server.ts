@@ -8,6 +8,7 @@ import collectionController from "./src/controllers/collectionController";
 import { Server } from "socket.io";
 import User from "./src/database/models/userModel";
 import Order from "./src/database/models/orderModel";
+import Payment from "./src/database/models/paymentModel";
 
 function startServer() {
   const server = app.listen(envConfig.port, () => {
@@ -20,7 +21,7 @@ function startServer() {
 
   const io = new Server(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: ["http://localhost:5173", "http://localhost:3000"],
     },
   });
   let activeUser: { socketId: string; userId: string; role: string }[] = [];
@@ -77,6 +78,31 @@ function startServer() {
         io.to(findUser.socketId).emit("statusUpdated", data);
       } else {
         socket.emit("error", "User is not online!!");
+      }
+    });
+
+    socket.on("updatePaymentStatus", async (data) => {
+      const { status, paymentId, userId } = data;
+      console.log(data, "payments");
+
+      const findUser = activeUser.find((user) => user.userId == userId);
+      await Payment.update(
+        {
+          paymentStatus: status,
+        },
+        {
+          where: { id: paymentId },
+        }
+      );
+      if (findUser) {
+        console.log(findUser.socketId, "Sending Payment Update");
+        io.to(findUser.socketId).emit("paymentStatusUpdated", {
+          paymentId,
+          status,
+          message: "Payment status updated successfully",
+        });
+      } else {
+        socket.emit("error", "User is not online to receive payment update!");
       }
     });
   });
