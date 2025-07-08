@@ -5,10 +5,11 @@ import { envConfig } from "./src/config/config";
 import categoryController from "./src/controllers/categoryController";
 import collectionController from "./src/controllers/collectionController";
 
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import User from "./src/database/models/userModel";
 import Order from "./src/database/models/orderModel";
 import Payment from "./src/database/models/paymentModel";
+import Message from "./src/database/models/messageModel";
 
 function startServer() {
   const server = app.listen(envConfig.port, () => {
@@ -104,6 +105,36 @@ function startServer() {
       } else {
         socket.emit("error", "User is not online to receive payment update!");
       }
+    });
+
+    // handle for chat
+    socket.on("joinChat", (chatId: string) => {
+      console.log(`User joined chat: ${chatId}`);
+      socket.join(chatId);
+    });
+
+    socket.on("sendMessage", async (data) => {
+      const { chatId, senderId, receiverId, content } = data;
+      if (!chatId || !senderId || !receiverId || !content) {
+        socket.emit(
+          "error",
+          "Chat ID, Sender ID, Receiver ID and content are required"
+        );
+        return;
+      }
+      const message = await Message.create({
+        chatId,
+        senderId,
+        receiverId,
+        content,
+        read: false,
+      });
+      // send to all clients in the chat room
+      io.to(chatId).emit("receiveMessage", message);
+      console.log(`Message sent in chat ${chatId}:`, message);
+    });
+    socket.on("typing", ({ chatId, userId }) => {
+      socket.to(chatId).emit("typing", { chatId, userId });
     });
   });
 }

@@ -19,7 +19,7 @@ export {multer,storage}
 
 // Correctly initialize Cloudinary config
 // cloudinary.config({
-  // cloudinary_url: envConfig.cloudinary_url,
+//   cloudinary_url: envConfig.cloudinary_url,
 // });
 
 // const storage = new CloudinaryStorage({

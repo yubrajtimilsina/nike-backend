@@ -183,7 +183,7 @@ class OrderController {
       attributes: ["totalPrice", "id", "orderStatus"],
       include: {
         model: Payment,
-        attributes: ["paymentMethod", "paymentStatus"],
+        attributes: [ 'id', "paymentMethod", "paymentStatus"],
       },
     });
     console.log(orders,"order")

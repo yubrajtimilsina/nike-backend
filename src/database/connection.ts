@@ -5,11 +5,12 @@ import ProductReview from "./models/productReviewModal";
 import Shoe from "./models/productModel";
 import User from "./models/userModel";
 import Collection from "./models/collectionModel";
-import { text } from "express";
 import Cart from "./models/cartModel";
 import Order from "./models/orderModel";
 import Payment from "./models/paymentModel";
-import OrderDetails from "./models/orderDetaills";
+import OrderDetails from "./models/orderDetaills"; // if your file is really named orderDetaills.ts, keep it as is
+import Chat from "./models/chatModel";
+import Message from "./models/messageModel";
 
 const sequelize = new Sequelize(envConfig.databaseUrl as string, {
   models: [__dirname + "/models"],
@@ -26,16 +27,14 @@ try {
     });
 } catch (error) {
   console.log("Database connection failed", error);
-
   process.exit(1);
 }
 
-sequelize.sync({ force: false, alter: true}).then(() => {
+sequelize.sync({ force: false, alter: false }).then(() => {
   console.log("Database synced successfully");
 });
 
-// // category x product
-
+// category x product
 Shoe.belongsTo(Category, { foreignKey: "categoryId" });
 Category.hasMany(Shoe, { foreignKey: "categoryId" });
 
@@ -67,12 +66,30 @@ User.hasMany(Order, { foreignKey: "userId" });
 Order.belongsTo(Payment, { foreignKey: "paymentId" });
 Payment.hasOne(Order, { foreignKey: "paymentId" });
 
-// order x oderDetaills
+// order x orderDetails
 OrderDetails.belongsTo(Order, { foreignKey: "orderId" });
 Order.hasOne(OrderDetails, { foreignKey: "orderId" });
 
-//  orderDetaills x Product
+// orderDetails x product
 OrderDetails.belongsTo(Shoe, { foreignKey: "productId" });
 Shoe.hasMany(OrderDetails, { foreignKey: "productId" });
 
+
+// for chat
+// Chat relations
+Chat.belongsTo(User, { as: "Customer", foreignKey: "customerId" });
+Chat.belongsTo(User, { as: "Admin", foreignKey: "adminId" });
+
+User.hasMany(Chat, { as: "CustomerChats", foreignKey: "customerId" });
+User.hasMany(Chat, { as: "AdminChats", foreignKey: "adminId" });
+
+// Message relations
+Message.belongsTo(Chat, { foreignKey: "chatId" });
+Chat.hasMany(Message, { foreignKey: "chatId" });
+
+Message.belongsTo(User, { as: "Sender", foreignKey: "senderId" });
+Message.belongsTo(User, { as: "Receiver", foreignKey: "receiverId" });
+
+User.hasMany(Message, { as: "SentMessages", foreignKey: "senderId" });
+User.hasMany(Message, { as: "ReceivedMessages", foreignKey: "receiverId" });
 export default sequelize;
