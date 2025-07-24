@@ -1,12 +1,24 @@
-import express from "express";
-import ProductReviewController from "../controllers/productReviewController";
+import express, { Router } from "express";
+import errorHandler from "../services/errorHandler";
 import userMiddleware from "../middleware/userMiddleware";
+import productReviewController from "../controllers/productReviewController";
 
-const router = express.Router();
+const router: Router = express.Router();
 
-router.post("/", userMiddleware.isUserLoggedIn, ProductReviewController.createReview);
-router.get("/:productId", ProductReviewController.getReviewsByProduct);
-router.put("/:id", userMiddleware.isUserLoggedIn, ProductReviewController.updateReview); // NEW
-router.delete("/:id", userMiddleware.isUserLoggedIn, ProductReviewController.deleteReview); // FIXED
+// POST review and GET reviews by product ID
+router
+  .route('/')
+  .post(userMiddleware.isUserLoggedIn, errorHandler(productReviewController.postReview))
+
+  router.route('/:productId').get(errorHandler(productReviewController.getReviewByProductId))
+
+// GET all reviews
+router.route('/').get(errorHandler(productReviewController.getAllReviews));
+
+// DELETE and PATCH review by ID (user must be logged in)
+router
+  .route('/:id')
+  .delete(userMiddleware.isUserLoggedIn, errorHandler(productReviewController.deleteReview))
+  .patch(userMiddleware.isUserLoggedIn, errorHandler(productReviewController.updateReview));
 
 export default router;

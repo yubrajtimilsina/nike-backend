@@ -84,13 +84,10 @@ class UserController {
 
       res.status(201).json({
         message: "User logged in successfully",
-        token,
-        user: {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-        },
+        id: user.id, 
+        username: user.username,
+        email: user.email,
+        token: token,
       
       });
     } catch (error) {

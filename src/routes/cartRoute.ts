@@ -5,8 +5,8 @@ import cartController from "../controllers/cartController";
 
 
 const router:Router= express.Router()
-router.route('/').post(userMiddleware.isUserLoggedIn,userMiddleware.accessTo(Role.Customer),errorHandler(cartController.addToCart)).get(userMiddleware.isUserLoggedIn,userMiddleware.accessTo(Role.Customer),errorHandler(cartController.getCart))
-router.route('/:productId').patch(userMiddleware.isUserLoggedIn,userMiddleware.accessTo(Role.Customer),errorHandler(cartController.updateCart)).delete(userMiddleware.isUserLoggedIn,userMiddleware.accessTo(Role.Customer),errorHandler(cartController.removeFromCart))
+router.route('/').post(userMiddleware.isUserLoggedIn,errorHandler(cartController.addToCart)).get(userMiddleware.isUserLoggedIn,errorHandler(cartController.getCart))
+router.route('/:productId').patch(userMiddleware.isUserLoggedIn,errorHandler(cartController.updateCart)).delete(userMiddleware.isUserLoggedIn,errorHandler(cartController.removeFromCart))
 
 
 
