@@ -96,7 +96,7 @@ class OrderController {
       });
     });
 
-    // for payment
+    // for payment with khalti
     if (paymentMethod === PaymentMethod.Khalti) {
       const data = {
         return_url: "http://localhost:5173/",
